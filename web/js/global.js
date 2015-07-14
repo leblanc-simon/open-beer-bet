@@ -25,7 +25,8 @@ if (navigator.language) {
 
 function buildLostBet(name, to)
 {
-    var element_beer = beer_bet.cloneNode(true);
+    var element_beer = beer_bet.cloneNode(false);
+    element_beer.draggable = false;
     var container = document.createElement('div');
     var element_name = document.createElement('span');
     var element_paid = document.createElement('a');
@@ -90,7 +91,7 @@ function buildParticipants(participants)
     for (iterator in participants) {
         participant = participants[iterator];
 
-        var element_beer = beer_bet.cloneNode(true);
+        var element_beer = beer_bet.cloneNode(false);
         var element_participant = document.createElement('div');
         var element_name = document.createElement('div');
         var element_bets = document.createElement('div');
