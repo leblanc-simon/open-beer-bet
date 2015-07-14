@@ -13,6 +13,7 @@ OpenBeerBet require a [Redis Server](http://redis.io/).
 ```bash
 git clone https://github.com/leblanc-simon/open-beer-bet.git
 cd open-beer-bet
+composer install
 cp config/participants.yml.dist config/participants.yml
 cp web/js/config.js.dist web/js/config.js
 
