@@ -1,0 +1,25 @@
+{
+    "name": "leblanc-simon/open-beer-bet",
+    "description": "A simple interface for beer bet",
+    "authors": [{
+        "name": "Simon Leblanc",
+        "email": "contact@leblanc-simon.eu",
+        "homepage": "http://www.leblanc-simon.fr",
+        "role": "Developer"
+    }],
+    "license": "WTFPL",
+
+    "type": "application",
+
+    "autoload": {
+        "psr-4": {
+            "OpenBeerBet\\": "src/"
+        }
+    },
+    "require": {
+        "cboden/ratchet": "^0.3.3",
+        "predis/predis": "^1.0",
+        "symfony/yaml": "^2.7",
+        "monolog/monolog": "^1.15"
+    }
+}

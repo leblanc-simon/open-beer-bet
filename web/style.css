@@ -1,0 +1,102 @@
+/**
+ * Copyright © 2015 Simon Leblanc <contact@leblanc-simon.eu>
+ * This work is free. You can redistribute it and/or modify it under the
+ * terms of the Do What The Fuck You Want To Public License, Version 2,
+ * as published by Sam Hocevar. See the COPYING file for more details.
+ */
+
+@import url(http://fonts.googleapis.com/css?family=Oldenburg&subset=latin,latin-ext);
+
+html, body {
+    margin: 0;
+    padding: 0;
+    font-family: 'Oldenburg', cursive;
+}
+
+html {
+    width: 100%;
+    height: 100%;
+    background: #38393d;
+    color: #18a654;
+}
+
+#container {
+}
+
+#title, .name {
+    color: #38393d;
+    background: #18a654;
+    padding: 2%;
+    margin: 0;
+}
+
+#bets {
+    width: 96%;
+    margin: 1% 2%;
+    clear: both;
+}
+
+#bets > div {
+    opacity: 0;
+}
+
+.name {
+    font-size: 170%;
+    position: relative;
+    min-height: 40px;
+    display: flex;
+    vertical-align: middle;
+}
+
+.name img {
+    position: absolute;
+    right: 3%;
+    top: 0;
+}
+
+.participant {
+    float: left;
+    width: 17%;
+    margin-left: 3%;
+    margin-bottom: 3%;
+    border: 1px solid #18a654;
+}
+
+#bets > div.participant {
+    animation: fade 3s;
+    opacity: 1;
+}
+@keyframes fade {
+     from {opacity: 0}
+     to {opacity: 1}
+ }
+
+.participant:first-child, .participant:nth-child(6) {
+    margin-left: 0;
+    clear: both;
+}
+
+.bets {
+    min-height: 150px;
+}
+
+.lost-bet {
+    padding-top: 1rem;
+    position: relative;
+}
+
+.lost-bet img {
+    vertical-align: middle;
+    margin-right: 1rem;
+}
+
+.lost-bet .paid {
+    background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAGYUlEQVRYR+2WC0xTVxjH/y2lSEsLWtryEkUnbxVl+JiZ71dUpk6nk5ihDuLEaKaZTt3cfA1NfOIwExSdipKg4qZM3BSZDxB5Ko9VoIXSW0ppS20RBxTb7tyCxMxJwC0xWTzJP6e595zz/53v+865ZeANN8Yb9sdbgP9PBPSG+g1WJjNbwBfn9Kau/pMIVMrK1elXL4t5PCeMGTW2ytt7wHZnJ+HZnoD8KwCjURdWKinJSzpxHEyGFTwXF1tVOzs7Y2jwMPj7BcYH+YWs6Q7ktQGajX9+/mNy4sGM39IREBCI1atiYO/ggPyCXFRUVkKjabD5ikVieHsPrCQ/P16yMLL47zC9BkiVT/dxMA4vvZ5o4mp0dYiMjMT48RMgqSpCWkYKTKY2MMiqi8KXg1JQKH5YjPb2dvKMgRnTZsoptSoictGn956D9AoguXpMorotNxosgGlmYyg3BiHOMeAw+8NsMeFufibuF9/CnKnzEegXAkqpwK7YbXB398TUyVNx5txptJlapp9Pvnq9VwBXG9fwKeN5TZNF7UBSDSeWAI52IvRhuqDVYoCr3Qj4O0RDwAqBFRbY2TFAqSjExm6Hm7s7olZEY8vWL60Wq4XB78sPO5NwsaDHANWUNHrtuqhEo2M2Rke0w8sPZMdCODLdwGXRECJw7IRkPQaJwjMIGaMA7XDs3rMDHh4eiI6KxsbNG+DgyAaH0weFOaUny0or4siEWiLDK1NgfKoLe1BclJF6PlXQUK/ByBGjYGg2wGB+BJ9xdfAeaQaX6Q5Hlpj0YhIRIYmMGE4OHmgzN6FapkDaiUJcuZCJsePfhT3bHroGHWSPlFlSafVRYv6YSP8SgF6vd27QKXJSUs8FFhUWIHRkGGJWrYUThw82i428/ALkFeRDqZHAO+QZAsaxwOcKwGG5gUeL7QkXeGP118uQ8F2H+WDfAdBr9ahXaItKSsp2m82gj4ieqL4L4PHjGhdKpUtO/+XK7Nz7OXAVCLFqZQz8/AMBqxWPpOXIyPwJi+cuxxCfQEilUtzMykSFrAw+Q/kYO9kH/T094UzMP9u8FKf3lGLMPCf4CmehUaMDVdNwq6Sk/BBtSoeeSEHUwtDpVP5sB86NfQdiPQuK88Gys8PAgYOwLHIFfIf4wWKxwGBoxJFT+2Bqa6VZMHvaAkwYMx1MJhN1ShWWR31CgGRYumIuJNqfcemwCux+QMQGT6jv+qKe0qaXlUgSzDA/37mcmJvpQmSUSm695+o6ILsf3wOSijLEHz0ATUPHJRLgH4AFHy4kF00wWltbcO5Skq2PilgLLoeLWkqB7Tu/QbupnRTbSqxftwFVSontHnASA76+AtQVcpJqKepc5651pKeIyDY6GqO88s5oK5i5YDAhEnhB2NcLFFWLH47Foay8pBMkiFw2EzFpwqSumRnXruIsOdc8Hg+bNn6FrNuZiNsXj3aBHE+bQK5lJqxKr+SaWsVxsoiRSEtU99y4C6CypmC02WrJpWNLh5eG6+ssgpvrQDQ3P8Gh+P24n59NDhkDIqEQ4eHzSIXLcCf7NrhcLjZv2oobNzNIceah4N4DmIU15LjZ40mF5+maGjltTuebzju9+5ca42ji/vWN+sb9s+fOhKMjx5ZzK01CxOf1g6foHbS0tuJCWgrOX0wheWfYci8SuWH7tl3Ys3cnGkjK7O1ZuJuZB0e3ZrSq+yXIqmVnOs3p8978T+a2FISGhtqHfzDlHmmhQcEk54sXQCgUdIHQMDwC4kVA6MsmOeUkMn69jJ07vkNc/EFotBqwWCw0G5vxx8MqUiPtexUKZVpn2GtI3/oqcxvAiy937NqSVvFIMp9+Oit8BsJGh3WA0CIDbRER0iDAmi+WQ6ttBIvs3NRiglKuVlKK+iSlUpVBXtOXjJTI0p35SwDPB+/YtSmGohRHauUUZs2ZgYlT3ifp4drqgw6/TFaN4ydOgs1mw6BvgkHTVFtdrTyiVquzyKBGInrnPWrdfg337v12mFyhKKyqlLKCgv2xaMlHELuLOwCSTuCJ8SkxNxJz6nu1WvM7cVQR0QXX49ajz3FqaoL3w9LK+0WF+W4+gwdh+IihSL9yDfIqqlSvM5yqU6sziSN9xOij1qvWI4AXV4w7HPtQrqgdlnUz55hK2XBNo9HQ/3I0RE975dw5uNcAr2PS3Zy3AG8j8BcGjLCEUe2YdQAAAABJRU5ErkJggg==);
+    width: 32px;
+    height: 32px;
+    display: inline-block;
+    position: absolute;
+    right: 8px;
+    top: 22px;
+    cursor: pointer;
+}
