@@ -5,6 +5,8 @@ OpenBeerBet is a sample interface to manage beer bet !
 
 It use Websockets, Web Notifications and Redis.
 
+A demo is available here : (https://openbeerbet.leblanc.io/)
+
 Installation
 ============
 
