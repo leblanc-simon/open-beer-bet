@@ -71,7 +71,7 @@ html {
      to {opacity: 1}
  }
 
-.participant:first-child, .participant:nth-child(6) {
+.participant:first-child, .participant:nth-child(5n+1) {
     margin-left: 0;
     clear: both;
 }
@@ -99,4 +99,56 @@ html {
     right: 8px;
     top: 22px;
     cursor: pointer;
+}
+
+/**
+ * Responsive
+ */
+@media screen and (max-width: 1200px) {
+    .participant {
+        width: 22%;
+        margin-left: 3%;
+    }
+    .participant:nth-child(5n+1),
+    .participant:nth-child(3n+1) {
+        margin-left: 3%;
+        clear: none;
+    }
+    .participant:nth-child(4n+1) {
+        margin-left: 0;
+        clear: both;
+    }
+}
+
+@media screen and (max-width: 992px) {
+    .participant {
+        width: 30%;
+        margin-left: 3%;
+    }
+    .participant:nth-child(5n+1),
+    .participant:nth-child(4n+1) {
+        margin-left: 3%;
+        clear: none;
+    }
+    .participant:nth-child(3n+1) {
+        margin-left: 0;
+        clear: both;
+    }
+}
+
+@media screen and (max-width: 768px) {
+    .participant {
+        width: 48%;
+        margin-left: 2%;
+    }
+    .participant:nth-child(5n+1),
+    .participant:nth-child(4n+1),
+    .participant:nth-child(3n+1) {
+        margin-left: 2%;
+        clear: none;
+    }
+    .participant:nth-child(2n+1) {
+        margin-left: 0;
+        clear: both;
+    }
 }
