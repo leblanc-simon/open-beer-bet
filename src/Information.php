@@ -94,7 +94,7 @@ class Information
             $datas = $yaml->parse(file_get_contents($this->participants_file));
             if (isset($datas['participants']) === true && is_array($datas['participants']) === true) {
                 $this->participants = $datas['participants'];
-                asort($this->participants);
+                asort($this->participants); // Yes it's an issue (must be sort), but currently I don't accept the result for personal reasons :)
                 return $this->participants;
             }
         } catch (ParseException $e) {
