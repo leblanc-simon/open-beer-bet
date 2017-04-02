@@ -15,5 +15,8 @@ lang.en = {
             new_bet: "{0} have a beer to {1}",
             paid_bet: "{0} paid a beer {1}"
         }
+    },
+    option: {
+        default_value: "Sélect the person winning a beer"
     }
 };

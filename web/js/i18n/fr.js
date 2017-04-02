@@ -15,5 +15,8 @@ lang.fr = {
             new_bet: "{0} doit une bière à {1}",
             paid_bet: "{0} a payé une bière à {1}"
         }
+    },
+    option: {
+        default_value: "Sélectionnez la personne gagnant une bière"
     }
 };
