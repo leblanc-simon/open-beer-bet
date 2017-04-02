@@ -17,9 +17,10 @@
         }
     },
     "require": {
-        "cboden/ratchet": "^0.3.3",
-        "predis/predis": "^1.0",
-        "symfony/yaml": "^2.7",
-        "monolog/monolog": "^1.15"
+        "cboden/ratchet": "^0.3",
+        "predis/predis": "^1",
+        "symfony/yaml": "^3",
+        "monolog/monolog": "^1",
+        "roave/security-advisories": "dev-master"
     }
 }

@@ -111,6 +111,7 @@ function buildParticipants(participants)
     }
 
     initDnd();
+    mobile.init();
 }
 
 function betIsPaid(from, to)
