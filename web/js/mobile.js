@@ -18,52 +18,45 @@ var mobile = {
                     return participant.getAttribute('id') !== current_participant;
                 })
                 .map(function (participant) {
-                    var option = document.createElement('option');
+                    var div_option = document.createElement('div');
                     var participant_id = participant.getAttribute('id');
-                    option.value = participant_id;
-                    option.innerHTML = participant_id;
-                    return option;
+
+                    div_option.setAttribute('data-value', participant_id);
+                    div_option.innerHTML = participant_id;
+
+                    div_option.addEventListener('click', function (event) {
+                        var message = {
+                            from: current_participant,
+                            to: event.target.getAttribute('data-value'),
+                            type: 'new'
+                        };
+
+                        if (null !== ws && true === websocket_status) {
+                            ws.send(JSON.stringify(message));
+                        } else {
+                            websocket_heap.push(message);
+                        }
+
+                        document.getElementById(event.target.getAttribute('data-value')).lastChild.appendChild(
+                            buildLostBet(current_participant, event.target.getAttribute('data-value'))
+                        );
+
+                        document.getElementById('mobile-choice').outerHTML = '';
+                        delete document.getElementById('mobile-choice');
+                    });
+
+                    return div_option;
                 })
             ;
 
-            var select = document.createElement('select');
-            select.style.visibility = "hidden";
-            select.setAttribute('id', 'mobile-choice');
-            var default_value = document.createElement('option');
-            default_value.innerHTML = lang[current_language].option.default_value;
-            select.appendChild(default_value);
+            var div_select = document.createElement('div');
+            div_select.setAttribute('id', 'mobile-choice');
 
             participants.forEach(function (option_participant) {
-                select.appendChild(option_participant);
+                div_select.appendChild(option_participant);
             });
 
-            select.addEventListener('change', function (event) {
-                var message = {
-                    from: current_participant,
-                    to: event.target.value,
-                    type: 'new'
-                };
-
-                if (null !== ws && true === websocket_status) {
-                    ws.send(JSON.stringify(message));
-                } else {
-                    websocket_heap.push(message);
-                }
-
-                document.getElementById(event.target.value).lastChild.appendChild(
-                    buildLostBet(current_participant, event.target.value)
-                );
-
-                document.getElementById('mobile-choice').outerHTML = '';
-                delete document.getElementById('mobile-choice');
-            });
-
-            document.body.appendChild(select);
-
-            // Show select : if no timeout, it doesn't work... I don't know why...
-            setTimeout(function () {
-                openSelect(document.getElementById('mobile-choice'));
-            }, 100);
+            document.body.appendChild(div_select);
         });
     }
 };
@@ -76,22 +69,6 @@ if (isMobile()) {
             mobile.touch(touchers[iterator]);
         }
     };
-}
-
-function openSelect(element)
-{
-    if (document.createEvent) {
-        //var event = document.createEvent('MouseEvents');
-        //event.initMouseEvent('mousedown', true, true, window, 0, 0, 0, 0, 0, false, false, false, false, 0, null);
-        var event = new MouseEvent('mousedown', {
-            'view': window,
-            'bubbles': true,
-            'cancelable': true
-        });
-        element.dispatchEvent(event);
-    } else if (element.fireEvent) {
-        element.fireEvent('onmousedown');
-    }
 }
 
 function isMobile()

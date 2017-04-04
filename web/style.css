@@ -101,6 +101,28 @@ html {
     cursor: pointer;
 }
 
+#mobile-choice {
+    position: fixed;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    right: 0;
+    overflow-y:scroll;
+    background: rgba(255, 255, 255, 0.6);
+}
+
+#mobile-choice > div {
+    background: #fff;
+    margin: 0 10%;
+    text-align: center;
+    padding: 4%;
+    border-bottom: 1px solid #000;
+}
+
+#mobile-choice > div:last-child {
+    border-bottom: none;
+}
+
 /**
  * Responsive
  */
