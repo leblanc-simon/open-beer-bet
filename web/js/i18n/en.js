@@ -17,6 +17,6 @@ lang.en = {
         }
     },
     option: {
-        default_value: "Sélect the person winning a beer"
+        default_value: "Select the person winning a beer"
     }
 };
