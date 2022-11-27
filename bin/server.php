@@ -6,20 +6,35 @@
  * as published by Sam Hocevar. See the COPYING file for more details.
  */
 
+use OpenBeerBet\Configuration;
+use Predis\Client;
 use Ratchet\Server\IoServer;
 use Ratchet\Http\HttpServer;
 use Ratchet\WebSocket\WsServer;
 use Monolog\Logger;
 use Monolog\Handler\RotatingFileHandler;
 use OpenBeerBet\Bet;
+use Symfony\Component\Dotenv\Dotenv;
 
 require dirname(__DIR__) . '/vendor/autoload.php';
 
-$configuration_file = dirname(__DIR__).'/config/config.yml';
-$participants_file = dirname(__DIR__).'/config/participants.yml';
+$dotenv = new Dotenv();
+$dotenv->load(dirname(__DIR__).'/.env');
 
-$configuration = new \OpenBeerBet\Configuration(
-    $configuration_file,
+if (false === str_starts_with($_ENV['CONFIGURATION_FILENAME'] ?? '', '/')) {
+    $configurationFile  = dirname(__DIR__).'/'. $_ENV['CONFIGURATION_FILENAME'];
+} else {
+    $configurationFile  = $_ENV['CONFIGURATION_FILENAME'];
+}
+
+if (false === str_starts_with($_ENV['PARTICIPANTS_FILENAME'] ?? '', '/')) {
+    $participantsFile  = dirname(__DIR__).'/'. $_ENV['PARTICIPANTS_FILENAME'];
+} else {
+    $participantsFile  = $_ENV['PARTICIPANTS_FILENAME'];
+}
+
+$configuration = new Configuration(
+    $configurationFile,
     [
         'server' => [
             'port' => 8080,
@@ -33,18 +48,18 @@ $configuration = new \OpenBeerBet\Configuration(
 );
 $configuration->load();
 
-$predis = new \Predis\Client($configuration->get('redis.connections'), $configuration->get('redis.options'));
+$predis = new Client($configuration->get('redis.connections'), $configuration->get('redis.options'));
 
 $logger = null;
 if ($configuration->get('server.log') !== false) {
-    $log_filename = $configuration->get('server.log.path');
-    $log_level = $configuration->get('server.log.level');
-    if (null !== $log_filename && null !== $log_level) {
+    $logFilename = $configuration->get('server.log.path');
+    $logLevel = $configuration->get('server.log.level');
+    if (null !== $logFilename && null !== $logLevel) {
         $logger = new Logger('openbeerbet');
         $logger->pushHandler(new RotatingFileHandler(
-            $log_filename,
+            $logFilename,
             20,
-            constant('\\Monolog\\Logger::'.strtoupper($log_level))
+            constant('\\Monolog\\Logger::'.strtoupper($logLevel))
         ));
     }
 }
@@ -52,7 +67,7 @@ if ($configuration->get('server.log') !== false) {
 $server = IoServer::factory(
     new HttpServer(
         new WsServer(
-            new Bet($predis, dirname(__DIR__).'/config/participants.yml', $logger)
+            new Bet($predis, $participantsFile, $logger)
         )
     ),
     $configuration->get('server.port')
