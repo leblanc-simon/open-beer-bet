@@ -8,24 +8,27 @@
 
 namespace OpenBeerBet\Bet;
 
+use JsonException;
 use Ratchet\ConnectionInterface;
 
 class PaidBet extends BetAbstract implements BetInterface
 {
     /**
-     * Save the state of bet
+     * Save the state of bet.
+     *
      * @param string $message the original message received from websocket client
-     * @return $this
+     * @return self
+     * @throws JsonException
      */
-    public function save($message)
+    public function save(string $message): self
     {
         $this->extractBetFromMessage($message);
 
         $bets = $this->predis->lrange(self::REDIS_LIST, 0, -1);
         foreach ($bets as $bet) {
-            $bet = json_decode($bet);
+            $bet = json_decode($bet, false, 512, JSON_THROW_ON_ERROR);
             if ($bet->to === $this->bet->to && $bet->from === $this->bet->from) {
-                $this->predis->lrem(self::REDIS_LIST, 1, json_encode($bet));
+                $this->predis->lrem(self::REDIS_LIST, 1, json_encode($bet, JSON_THROW_ON_ERROR));
                 break;
             }
         }
@@ -35,10 +38,12 @@ class PaidBet extends BetAbstract implements BetInterface
 
     /**
      * Dispatch the information of the websocket client
+     *
      * @param ConnectionInterface $from the sender
-     * @return $this
+     * @return self
+     * @throws JsonException
      */
-    public function dispatch(ConnectionInterface $from)
+    public function dispatch(ConnectionInterface $from): self
     {
         return $this->sendMessage($from, 'paid');
     }

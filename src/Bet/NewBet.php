@@ -8,16 +8,19 @@
 
 namespace OpenBeerBet\Bet;
 
+use JsonException;
 use Ratchet\ConnectionInterface;
 
 class NewBet extends BetAbstract implements BetInterface
 {
     /**
-     * Save the state of bet
+     * Save the state of bet.
+     *
      * @param string $message the original message received from websocket client
      * @return $this
+     * @throws JsonException
      */
-    public function save($message)
+    public function save(string $message): self
     {
         $this->extractBetFromMessage($message);
         $this->bet->date = date('Y-m-d H:i:s');
@@ -27,11 +30,13 @@ class NewBet extends BetAbstract implements BetInterface
     }
 
     /**
-     * Dispatch the information of the websocket client
+     * Dispatch the information of the websocket client.
+     *
      * @param ConnectionInterface $from the sender
-     * @return $this
+     * @return self
+     * @throws JsonException
      */
-    public function dispatch(ConnectionInterface $from)
+    public function dispatch(ConnectionInterface $from): self
     {
         return $this->sendMessage($from, 'new');
     }

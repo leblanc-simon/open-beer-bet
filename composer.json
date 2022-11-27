@@ -17,10 +17,14 @@
         }
     },
     "require": {
-        "cboden/ratchet": "^0.3",
-        "predis/predis": "^1",
-        "symfony/yaml": "^3",
-        "monolog/monolog": "^1",
+        "php": ">=8.1",
+        "cboden/ratchet": "^0.4",
+        "predis/predis": "^2.0",
+        "symfony/yaml": "^6.1",
+        "monolog/monolog": "^3.2",
         "roave/security-advisories": "dev-master"
+    },
+    "require-dev": {
+        "phpstan/phpstan": "^1.9"
     }
 }

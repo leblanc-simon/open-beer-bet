@@ -11,27 +11,30 @@ namespace OpenBeerBet\Bet;
 use Monolog\Logger;
 use Predis\Client;
 use Ratchet\ConnectionInterface;
+use SplObjectStorage;
 
 interface BetInterface
 {
     /**
-     * @param Client $predis Redis client - where the bets are saved
-     * @param \SplObjectStorage $clients - Websocket clients
-     * @param Logger $logger
+     * @param Client $predis
+     * @param SplObjectStorage<ConnectionInterface> $clients
+     * @param Logger|null $logger
      */
-    public function __construct(Client $predis, \SplObjectStorage $clients, Logger $logger);
+    public function __construct(Client $predis, SplObjectStorage $clients, ?Logger $logger = null);
 
     /**
-     * Save the state of bet
+     * Save the state of bet.
+     *
      * @param string $message the original message received from websocket client
      * @return $this
      */
-    public function save($message);
+    public function save(string $message): self;
 
     /**
-     * Dispatch the information of the websocket client
+     * Dispatch the information of the websocket client.
+     *
      * @param ConnectionInterface $from the sender
      * @return $this
      */
-    public function dispatch(ConnectionInterface $from);
+    public function dispatch(ConnectionInterface $from): self;
 }

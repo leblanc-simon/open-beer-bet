@@ -36,6 +36,7 @@ Credits
 * Predis : license MIT (https://github.com/nrk/predis)
 * Symfony : license MIT (https://symfony.com/)
 * Monolog : license MIT (https://github.com/Seldaek/monolog)
+* Oldenburg (font) : license SIL Open Font License, 1.1 (Copyright (c) 2010 by Sorkin Type Co with Reserved Font Name Oldenburgh.)
 
 License
 =======

@@ -8,102 +8,78 @@
 
 namespace OpenBeerBet;
 
+use JsonException;
 use Monolog\Logger;
 use OpenBeerBet\Bet\BetAbstract;
 use Predis\Client;
 use Ratchet\ConnectionInterface;
+use StdClass;
 use Symfony\Component\Yaml\Exception\ParseException;
 use Symfony\Component\Yaml\Parser;
 
 class Information
 {
-    /**
-     * @var \Predis\Client
-     */
-    private $predis;
+    private array $participants = [];
 
-    /**
-     * @var string
-     */
-    private $participants_file;
-
-    /**
-     * @var Logger
-     */
-    private $logger;
-
-    /**
-     * @var array
-     */
-    private $participants;
-
-    /**
-     * @param Client $predis
-     * @param string $participants_file
-     * @param Logger $logger
-     */
-    public function __construct(Client $predis, $participants_file, Logger $logger = null)
-    {
-        $this->predis = $predis;
-        $this->participants_file = $participants_file;
-        $this->logger = $logger;
+    public function __construct(
+        private readonly Client  $predis,
+        private readonly string  $participantsFile,
+        private readonly ?Logger $logger = null
+    ) {
     }
 
     /**
      * @param ConnectionInterface $from
+     * @throws JsonException
      */
-    public function dispatch(ConnectionInterface $from)
+    public function dispatch(ConnectionInterface $from): void
     {
         $bets = $this->predis->lrange(BetAbstract::REDIS_LIST, 0, -1);
         $list = [];
 
         foreach ($bets as $bet) {
-            $list[] = json_decode($bet);
+            $list[] = json_decode($bet, false, 512, JSON_THROW_ON_ERROR);
         }
 
-        $response = new \StdClass();
+        $response = new StdClass();
         $response->type = 'info';
         $response->bets = $list;
         $response->participants = $this->getParticipants();
 
-        if (null !== $this->logger) {
-            $this->logger->addDebug(sprintf(
-                'Sent information : %s',
-                json_encode($response)
-            ));
-        }
+        $this->logger?->debug(sprintf(
+            'Sent information : %s',
+            json_encode($response, JSON_THROW_ON_ERROR)
+        ));
 
-        $from->send(json_encode($response));
+        $from->send(json_encode($response, JSON_THROW_ON_ERROR));
     }
 
     /**
      * @return array
      */
-    private function getParticipants()
+    private function getParticipants(): array
     {
-        if ($this->participants !== null) {
+        if (count($this->participants) !== 0) {
             return $this->participants;
         }
 
-        if (is_file($this->participants_file) === false) {
+        if (is_file($this->participantsFile) === false) {
             return [];
         }
 
         $yaml = new Parser();
         try {
-            $datas = $yaml->parse(file_get_contents($this->participants_file));
+            $datas = $yaml->parse(file_get_contents($this->participantsFile));
             if (isset($datas['participants']) === true && is_array($datas['participants']) === true) {
                 $this->participants = $datas['participants'];
                 asort($this->participants); // Yes it's an issue (must be sort), but currently I don't accept the result for personal reasons :)
                 return $this->participants;
             }
         } catch (ParseException $e) {
-            if (null !== $this->logger) {
-                $this->logger->addCritical(sprintf(
-                    'Error while parsing participants.yml : %s',
-                    $e->getMessage()
-                ));
-            }
+            $this->logger?->critical(sprintf(
+                'Error while parsing participants.yml : %s',
+                $e->getMessage()
+            ));
         }
 
         return [];

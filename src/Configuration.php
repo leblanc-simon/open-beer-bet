@@ -14,27 +14,18 @@ use Symfony\Component\Yaml\Parser;
 class Configuration
 {
     /**
-     * @var string
+     * @var array<string, mixed>
      */
-    private $filename;
+    private array $configuration = [];
 
-    /**
-     * @var array
-     */
-    private $default;
-
-    /**
-     * @var array
-     */
-    private $configuration;
-
-    public function __construct($filename, array $default = [])
-    {
-        $this->filename = $filename;
-        $this->default = $default;
+    public function __construct(
+        private readonly string $filename,
+        /** @var array<string, mixed> */
+        private readonly array $default = [],
+    ) {
     }
 
-    public function load()
+    public function load(): static
     {
         if (is_file($this->filename) === false) {
             $this->configuration = $this->default;
@@ -44,38 +35,34 @@ class Configuration
         try {
             $yaml = new Parser();
             $this->configuration = $yaml->parse(file_get_contents($this->filename));
-        } catch (ParseException $e) {
+        } catch (ParseException) {
             $this->configuration = $this->default;
         }
 
         return $this;
     }
 
-    public function get($configuration)
+    public function get(string $configuration)
     {
         $keys = explode('.', $configuration);
 
         $value = $this->getFromConfiguration($configuration, $keys, $this->configuration);
-        if (null !== $value) {
-            return $value;
-        }
 
-        return $this->getFromConfiguration($configuration, $keys, $this->default);
+        return $value ?? $this->getFromConfiguration($configuration, $keys, $this->default);
     }
 
-    private function getFromConfiguration($search, $keys, $current_configuration)
+    private function getFromConfiguration(string $search, array $keys, array $current_configuration)
     {
         foreach ($keys as $key) {
             $is_last = strpos($search, $key) === (strrpos($search, '.') + 1);
-            if (is_array($current_configuration) === true && array_key_exists($key, $current_configuration) === true) {
-                if (true === $is_last) {
-                    return $current_configuration[$key];
-                }
-
-                $current_configuration = $current_configuration[$key];
-            } else {
+            if (false === is_array($current_configuration) || false === array_key_exists($key, $current_configuration)) {
                 return null;
             }
+            if (true === $is_last) {
+                return $current_configuration[$key];
+            }
+
+            $current_configuration = $current_configuration[$key];
         }
 
         return null;

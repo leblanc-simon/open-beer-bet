@@ -8,121 +8,95 @@
 
 namespace OpenBeerBet;
 
+use Exception;
+use InvalidArgumentException;
 use Monolog\Logger;
 use OpenBeerBet\Bet\NewBet;
 use OpenBeerBet\Bet\PaidBet;
 use Predis\Client;
 use Ratchet\MessageComponentInterface;
 use Ratchet\ConnectionInterface;
+use SplObjectStorage;
+use Throwable;
 
 class Bet implements MessageComponentInterface
 {
     /**
-     * @var \Predis\Client
+     * @var SplObjectStorage<ConnectionInterface>
      */
-    private $predis;
+    private SplObjectStorage $clients;
 
-    /**
-     * @var \SplObjectStorage
-     */
-    private $clients;
-
-    /**
-     * @var string
-     */
-    private $participants_file;
-
-    /**
-     * @var Logger
-     */
-    private $logger;
-
-    /**
-     * @param Client $predis
-     * @param string $participants_file
-     * @param Logger $logger
-     */
-    public function __construct(Client $predis, $participants_file, Logger $logger = null)
-    {
-        $this->predis = $predis;
-        $this->participants_file = $participants_file;
-        $this->clients = new \SplObjectStorage();
-        $this->logger = $logger;
+    public function __construct(
+        private readonly Client  $predis,
+        private readonly string  $participantsFile,
+        private readonly ?Logger $logger = null
+    ) {
+        $this->clients = new SplObjectStorage();
     }
 
-    public function onOpen(ConnectionInterface $connection)
+    public function onOpen(ConnectionInterface $conn): void
     {
-        $this->clients->attach($connection);
-        if (null !== $this->logger) {
-            $this->logger->addInfo(sprintf(
-                'New connection : %s',
-                $connection->resourceId
-            ));
-        }
+        $this->clients->attach($conn);
+        $this->logger?->info(sprintf(
+            'New connection : %s',
+            $conn->resourceId
+        ));
     }
 
-    public function onMessage(ConnectionInterface $from, $message)
+    public function onMessage(ConnectionInterface $from, $msg): void
     {
         $numRecv = count($this->clients) - 1;
 
-        if (null !== $this->logger) {
-            $this->logger->addInfo(sprintf(
-                'Connection %d sending message "%s" to %d other connection%s',
-                $from->resourceId, $message, $numRecv, $numRecv == 1 ? '' : 's'
-            ));
-        }
+        $this->logger?->info(sprintf(
+            'Connection %d sending message "%s" to %d other connection%s',
+            $from->resourceId, $msg, $numRecv, $numRecv === 1 ? '' : 's'
+        ));
 
         try {
-            $object_message = json_decode($message);
+            $object_message = json_decode($msg, false, 512, JSON_THROW_ON_ERROR);
             if (property_exists($object_message, 'type') === false) {
-                throw new \InvalidArgumentException('type must be define in message');
+                throw new InvalidArgumentException('type must be define in message');
             }
 
             switch ($object_message->type) {
                 case 'new':
                     (new NewBet($this->predis, $this->clients, $this->logger))
-                        ->save($message)->dispatch($from);
+                        ->save($msg)->dispatch($from);
                     break;
                 case 'paid':
                     (new PaidBet($this->predis, $this->clients, $this->logger))
-                        ->save($message)->dispatch($from);
+                        ->save($msg)->dispatch($from);
                     break;
                 case 'info':
-                    (new Information($this->predis, $this->participants_file))
+                    (new Information($this->predis, $this->participantsFile))
                         ->dispatch($from);
                     break;
             }
-        } catch (\Exception $e) {
-            if (null !== $this->logger) {
-                $this->logger->addCritical(sprintf(
-                    'An exception throw : %s',
-                    $e->getMessage()
-                ));
-            }
-        }
-    }
-
-    public function onClose(ConnectionInterface $connection)
-    {
-        $this->clients->detach($connection);
-
-        if (null !== $this->logger) {
-            $this->logger->addInfo(sprintf(
-                'Connection %s has disconnected',
-                $connection->resourceId
-            ));
-        }
-    }
-
-    public function onError(ConnectionInterface $connection, \Exception $e)
-    {
-        if (null !== $this->logger) {
-            $this->logger->addInfo(sprintf(
-                'An error has occurred: %s',
+        } catch (Throwable $e) {
+            $this->logger?->critical(sprintf(
+                'An exception throw : %s',
                 $e->getMessage()
             ));
         }
+    }
 
-        $connection->close();
+    public function onClose(ConnectionInterface $conn): void
+    {
+        $this->clients->detach($conn);
+
+        $this->logger?->info(sprintf(
+            'Connection %s has disconnected',
+            $conn->resourceId
+        ));
+    }
+
+    public function onError(ConnectionInterface $conn, Exception $e): void
+    {
+        $this->logger?->info(sprintf(
+            'An error has occurred: %s',
+            $e->getMessage()
+        ));
+
+        $conn->close();
     }
 }

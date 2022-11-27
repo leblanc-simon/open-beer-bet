@@ -39,7 +39,7 @@ $logger = null;
 if ($configuration->get('server.log') !== false) {
     $log_filename = $configuration->get('server.log.path');
     $log_level = $configuration->get('server.log.level');
-    if (null !== $log_filename && null !== $log_filename) {
+    if (null !== $log_filename && null !== $log_level) {
         $logger = new Logger('openbeerbet');
         $logger->pushHandler(new RotatingFileHandler(
             $log_filename,

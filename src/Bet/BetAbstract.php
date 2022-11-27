@@ -8,58 +8,43 @@
 
 namespace OpenBeerBet\Bet;
 
+use InvalidArgumentException;
+use JsonException;
 use Monolog\Logger;
 use Predis\Client;
 use Ratchet\ConnectionInterface;
+use SplObjectStorage;
 
 abstract class BetAbstract
 {
-    const REDIS_LIST = 'OpenBeerBet-bets';
-
-    /**
-     * @var \Predis\Client
-     */
-    protected $predis;
-
-    /**
-     * @var \SplObjectStorage
-     */
-    protected $clients;
-
-    /**
-     * @var Logger
-     */
-    protected $logger;
+    public const REDIS_LIST = 'OpenBeerBet-bets';
 
     /**
      * @var \StdClass
      */
-    protected $bet;
+    protected \StdClass $bet;
 
-    /**
-     * @param Client $predis Redis client - where the bets are saved
-     * @param \SplObjectStorage $clients - Websocket clients
-     * @param Logger $logger
-     */
-    public function __construct(Client $predis, \SplObjectStorage $clients, Logger $logger = null)
-    {
-        $this->predis = $predis;
-        $this->clients = $clients;
-        $this->logger = $logger;
+    public function __construct(
+        protected readonly Client $predis,
+        /** @var SplObjectStorage<ConnectionInterface> */
+        protected readonly SplObjectStorage $clients,
+        protected readonly ?Logger $logger = null
+    ) {
         $this->bet = new \StdClass();
     }
 
-    protected function sendMessage(ConnectionInterface $from, $type)
+    /**
+     * @throws JsonException
+     */
+    protected function sendMessage(ConnectionInterface $from, $type): static
     {
         $this->bet->type = $type;
-        $message = json_encode($this->bet);
+        $message = json_encode($this->bet, JSON_THROW_ON_ERROR);
 
-        if (null !== $this->logger) {
-            $this->logger->addDebug(sprintf(
-                'Send message into clients : %s',
-                $message
-            ));
-        }
+        $this->logger?->debug(sprintf(
+            'Send message into clients : %s',
+            $message
+        ));
 
         foreach ($this->clients as $client) {
             if ($from !== $client) {
@@ -70,26 +55,27 @@ abstract class BetAbstract
         return $this;
     }
 
-    protected function extractBetFromMessage($message)
+    /**
+     * @throws JsonException
+     */
+    protected function extractBetFromMessage($message): void
     {
-        if (null !== $this->logger) {
-            $this->logger->addDebug(sprintf(
-                'Receive message from client : %s',
-                $message
-            ));
-        }
+        $this->logger?->debug(sprintf(
+            'Receive message from client : %s',
+            $message
+        ));
 
-        $bet = json_decode($message);
+        $bet = json_decode($message, false, 512, JSON_THROW_ON_ERROR);
         if (null === $bet) {
-            throw new \InvalidArgumentException('message cannot be decode');
+            throw new InvalidArgumentException('message cannot be decode');
         }
 
         if (property_exists($bet, 'from') === false) {
-            throw new \InvalidArgumentException('message must have from');
+            throw new InvalidArgumentException('message must have from');
         }
 
         if (property_exists($bet, 'to') === false) {
-            throw new \InvalidArgumentException('message must have to');
+            throw new InvalidArgumentException('message must have to');
         }
 
         $this->bet->from = trim($bet->from);
