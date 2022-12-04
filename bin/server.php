@@ -38,6 +38,7 @@ $configuration = new Configuration(
     [
         'server' => [
             'port' => 8080,
+            'address' => '127.0.0.1',
             'log' => false,
         ],
         'redis' => [
@@ -70,7 +71,8 @@ $server = IoServer::factory(
             new Bet($predis, $participantsFile, $logger)
         )
     ),
-    $configuration->get('server.port')
+    $configuration->get('server.port'),
+    $configuration->get('server.address'),
 );
 
 $server->run();
